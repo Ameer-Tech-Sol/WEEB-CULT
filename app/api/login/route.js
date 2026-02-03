@@ -39,7 +39,7 @@ export async function POST(req) {
     const isProduction = process.env.NODE_ENV === "production";
 
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ success: true, user: user }),
       {
         headers: {
           // Added 'Secure' for Vercel and 'Max-Age' (7 days)
