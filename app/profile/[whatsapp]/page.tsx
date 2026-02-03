@@ -2,6 +2,7 @@
 import React from "react";
 import { cookies } from "next/headers";
 import LogoutButton from "./logout-button";
+import pool from "@/src/lib/db"; // ADD THIS LINE
 
 
 
@@ -43,14 +44,22 @@ if (sessionWhatsapp !== whatsapp) {
                ? window.location.host 
                : process.env.VERCEL_URL || "localhost:3000";
   
-  const res = await fetch(
-    `${protocol}://${host}/api/profile?whatsapp=${encodeURIComponent(whatsapp)}`,
-    { cache: "no-store" }
-  );
+  // --- REPLACING FETCH WITH DIRECT DB CALL ---
+  let user = null;
+  try {
+    const result = await pool.query(
+      "SELECT * FROM users WHERE whatsapp_number = $1",
+      [whatsapp]
+    );
+    
+    if (result.rows.length > 0) {
+      user = result.rows[0];
+    }
+  } catch (dbError) {
+    console.error("Database fetch error:", dbError);
+  }
 
-  const data = await res.json();
-
-  if (!data?.success) {
+  if (!user) {
     return (
       <main style={{ padding: 20, color: "#fff", background: "#000", minHeight: "100vh" }}>
         <h1>User not found ✖</h1>
@@ -58,8 +67,7 @@ if (sessionWhatsapp !== whatsapp) {
       </main>
     );
   }
-
-  const user = data.user;
+  // --- END OF NEW LOGIC ---
 
 
 
