@@ -35,20 +35,25 @@ export async function POST(req) {
       );
     }
 
-    // set secure cookie
+    // --- UPDATED COOKIE LOGIC ---
+    const isProduction = process.env.NODE_ENV === "production";
+
     return new Response(
       JSON.stringify({ success: true }),
       {
         headers: {
-          "Set-Cookie": `session_whatsapp=${user.whatsapp_number}; HttpOnly; Path=/; SameSite=Lax`,
+          // Added 'Secure' for Vercel and 'Max-Age' (7 days)
+          "Set-Cookie": `session_whatsapp=${user.whatsapp_number}; HttpOnly; Path=/; SameSite=Lax; ${isProduction ? 'Secure;' : ''} Max-Age=${60 * 60 * 24 * 7}`,
           "Content-Type": "application/json"
         }
       }
     );
+    // --- END UPDATED LOGIC ---
 
-  } catch (err) {
+  } catch (error) {
+    console.error("Login error:", error);
     return Response.json(
-      { success: false, error: err.message },
+      { success: false, error: "Internal server error" },
       { status: 500 }
     );
   }
