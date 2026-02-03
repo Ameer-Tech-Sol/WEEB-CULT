@@ -37,8 +37,14 @@ if (sessionWhatsapp !== whatsapp) {
   
 
   // fetch server-side (no-cache so page always shows latest)
+  // Fix: Get the current domain automatically
+  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+  const host = typeof window !== "undefined" 
+               ? window.location.host 
+               : process.env.VERCEL_URL || "localhost:3000";
+  
   const res = await fetch(
-    `http://localhost:3000/api/profile?whatsapp=${encodeURIComponent(whatsapp)}`,
+    `${protocol}://${host}/api/profile?whatsapp=${encodeURIComponent(whatsapp)}`,
     { cache: "no-store" }
   );
 
